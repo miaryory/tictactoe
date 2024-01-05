@@ -6,7 +6,12 @@ import Log from "./components/Log";
 import GameOver from "./components/GameOver";
 import { WINNING_COMBINATIONS } from './components/winning-combinations';
 
-const initialGameBoard = [
+const PLAYERS = {
+  X: "Player 1",
+  O: "Player 2"
+};
+
+const INITIAL_GAME_BOARD = [
   [null, null, null],
   [null, null, null],
   [null, null, null]
@@ -24,32 +29,8 @@ function derivedActivePlayer(gameTurns) {
   return activePlayer;
 }
 
-function App() {
-  const [gameTurns, setGameTurns] = useState([]);
-  const [players, setPlayers] = useState({
-    "X" : "Player 1",
-    "O" : "Player 2"
-  });
-
-  //Get the active player without managing extra state
-  const activePlayer = derivedActivePlayer(gameTurns);
-
-  //Compute the button that has been clicked by the player
-  ///!\IMMUTABILITY/!\
-  //Copy of initialGameBoard = [...initialGameBoard]
-  //Deep copy of initialGameBoard = [...initialGameBoard.map(array => [...array])]
-  let gameBoard = [...initialGameBoard.map(array => [...array])];
-
-  //If turn is an empty, the loop won't do anything
-  for (const turn of gameTurns) {
-    //Deconstruct props
-    const { square, player } = turn;
-    const { row, col } = square;
-
-    //Update the element in the array with the player's symbol
-    gameBoard[row][col] = player;
-  }
-
+//This function defines the winner/draw
+function deriveWinner(gameBoard, players) {
   //Check if there is a winner
   //Since this is part of the App component, it will be rendered after every turn
   let winner;
@@ -70,6 +51,43 @@ function App() {
       winner = players[firstSquareSymbol];
     }
   }
+
+  return winner;
+}
+
+//This function computes the moves played on the board
+function deriveGameBoard(gameTurns) {
+  //Compute the button that has been clicked by the player
+  ///!\IMMUTABILITY/!\
+  //Copy of initialGameBoard = [...initialGameBoard]
+  //Deep copy of initialGameBoard = [...initialGameBoard.map(array => [...array])]
+  let gameBoard = [...INITIAL_GAME_BOARD.map(array => [...array])];
+
+  //If turn is an empty, the loop won't do anything
+  for (const turn of gameTurns) {
+    //Deconstruct props
+    const { square, player } = turn;
+    const { row, col } = square;
+
+    //Update the element in the array with the player's symbol
+    gameBoard[row][col] = player;
+  }
+
+  return gameBoard;
+}
+
+function App() {
+  const [gameTurns, setGameTurns] = useState([]);
+  const [players, setPlayers] = useState(PLAYERS);
+
+  //Get the active player without managing extra state
+  const activePlayer = derivedActivePlayer(gameTurns);
+
+  //Compute the moves and update the gameboard
+  const gameBoard = deriveGameBoard(gameTurns);
+
+  //Define the winner by calling a derived function
+  const winner = deriveWinner(gameBoard, players);
 
   //Handle the case where we have a draw
   //It is the case when all the turns have passed (9) and there is no winner
@@ -110,8 +128,8 @@ function App() {
     <main>
       <div id="game-container">
         <ol id="players" className="highlight-player">
-          <Player name="Player 1" symbol="X" isActive={activePlayer === "X"} onChangeName={handlePlayerNameChange}/>
-          <Player name="Player 2" symbol="O" isActive={activePlayer === "O"} onChangeName={handlePlayerNameChange}/>
+          <Player name={PLAYERS.X} symbol="X" isActive={activePlayer === "X"} onChangeName={handlePlayerNameChange} />
+          <Player name={PLAYERS.O} symbol="O" isActive={activePlayer === "O"} onChangeName={handlePlayerNameChange} />
         </ol>
         {/* Display a message when the game is over */}
         {(winner || hasDraw) && <GameOver winner={winner} onRestart={handleRestart} />}

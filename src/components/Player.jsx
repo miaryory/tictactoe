@@ -9,7 +9,7 @@ export default function Player({ name, symbol, isActive, onChangeName }) {
         //!isEditing schedules the update of the state while the function immediatly uses the latest available state value
         setIsEditing((editing) => !editing);
 
-        //Liste, for the new name only when the user is editing the info
+        //Listen for the new name only when the user is editing the info
         if(isEditing) {
             onChangeName(symbol, playerName);
         }
