@@ -26,6 +26,10 @@ function derivedActivePlayer(gameTurns) {
 
 function App() {
   const [gameTurns, setGameTurns] = useState([]);
+  const [players, setPlayers] = useState({
+    "X" : "Player 1",
+    "O" : "Player 2"
+  });
 
   //Get the active player without managing extra state
   const activePlayer = derivedActivePlayer(gameTurns);
@@ -62,8 +66,8 @@ function App() {
     if (firstSquareSymbol &&
       firstSquareSymbol === secondSquareSymbol &&
       firstSquareSymbol === thirdSquareSymbol) {
-      //Set it to the symbol of the player who won
-      winner = firstSquareSymbol;
+      //Retrieve the winner info from the players's array based on the symbol
+      winner = players[firstSquareSymbol];
     }
   }
 
@@ -90,12 +94,24 @@ function App() {
     setGameTurns([]);
   }
 
+  //Get the player's name instead of the symbol only
+  function handlePlayerNameChange(symbol, name) {
+    //Set the new state as follow since it is based on the previous value of the state
+    setPlayers(previousPlayers => {
+      return {
+        ...previousPlayers,
+        //Dynamically set an object property by using the []
+        [symbol]: name
+      };
+    });
+  }
+
   return (
     <main>
       <div id="game-container">
         <ol id="players" className="highlight-player">
-          <Player name="Player 1" symbol="X" isActive={activePlayer === "X"} />
-          <Player name="Player 2" symbol="O" isActive={activePlayer === "O"} />
+          <Player name="Player 1" symbol="X" isActive={activePlayer === "X"} onChangeName={handlePlayerNameChange}/>
+          <Player name="Player 2" symbol="O" isActive={activePlayer === "O"} onChangeName={handlePlayerNameChange}/>
         </ol>
         {/* Display a message when the game is over */}
         {(winner || hasDraw) && <GameOver winner={winner} onRestart={handleRestart} />}
