@@ -31,7 +31,10 @@ function App() {
   const activePlayer = derivedActivePlayer(gameTurns);
 
   //Compute the button that has been clicked by the player
-  let gameBoard = initialGameBoard;
+  ///!\IMMUTABILITY/!\
+  //Copy of initialGameBoard = [...initialGameBoard]
+  //Deep copy of initialGameBoard = [...initialGameBoard.map(array => [...array])]
+  let gameBoard = [...initialGameBoard.map(array => [...array])];
 
   //If turn is an empty, the loop won't do anything
   for (const turn of gameTurns) {
@@ -82,6 +85,11 @@ function App() {
     });
   }
 
+  //Reset the gameTurns table to let the users play again
+  function handleRestart() {
+    setGameTurns([]);
+  }
+
   return (
     <main>
       <div id="game-container">
@@ -89,8 +97,8 @@ function App() {
           <Player name="Player 1" symbol="X" isActive={activePlayer === "X"} />
           <Player name="Player 2" symbol="O" isActive={activePlayer === "O"} />
         </ol>
-        {/* Display a message when there is a winner */}
-        {(winner || hasDraw) && <GameOver winner={winner} />}
+        {/* Display a message when the game is over */}
+        {(winner || hasDraw) && <GameOver winner={winner} onRestart={handleRestart} />}
         <GameBoard onSelectSquare={handleSelectSquare} activePlayerSymbol={activePlayer} board={gameBoard} />
       </div>
       <Log turns={gameTurns} />
